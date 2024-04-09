@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -28,13 +30,24 @@ namespace WpfApp.ViewModels
         public string[] EnumFontNames { get; private set; }
 
         string _fileName = string.Empty;
-        public string FileName 
+        public string FileName
         {
             get => _fileName;
-            set 
+            set
             {
                 _fileName = value;
                 OnPropertyChanged(nameof(FileName));
+            }
+        }
+
+        bool _buttonsEnabled = true;
+        public bool ButtonOkEnabled 
+        {
+            get => _buttonsEnabled;
+            set 
+            {
+                _buttonsEnabled = value;
+                OnPropertyChanged(nameof(ButtonOkEnabled));
             }
         }
 
@@ -63,24 +76,34 @@ namespace WpfApp.ViewModels
             }
         }
 
-        private void generateReport() 
+        private async void generateReport()
         {
-            if (!fileNameIsOK()) return;
+            if (!fileNameIsOK()) 
+            {
+                MessageBox.Show("Некорректный путь к файлу.", "Проверьте путь к файлу!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            } 
             bool statusOK = false;
+            ButtonOkEnabled = false;
             Report report = createReport();
             settingsUpReport(report);
-            try 
+
+            try
             {
-                report.GenerateReport();
+                await Task.Run(() =>
+                {
+                    report.GenerateReport();
+                });
+
                 MessageBox.Show($"Путь к отчету: {_fileName}", "Отчет создан!", MessageBoxButton.OK, MessageBoxImage.Information);
                 statusOK = true;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Не удалось сгенерировать отчет", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            if (statusOK) 
+            if (statusOK)
             {
                 saveInvoiceNumber(++_invoiceNumber);
                 closeWindow();
@@ -98,11 +121,7 @@ namespace WpfApp.ViewModels
         private bool fileNameIsOK() 
         {
             bool statusOK = true;
-            if (string.IsNullOrEmpty(_fileName)) 
-            {
-                MessageBox.Show("Не указан путь к файлу.", "Укажите путь к файлу!", MessageBoxButton.OK, MessageBoxImage.Error);
-                statusOK = false;
-            }
+            if (string.IsNullOrEmpty(_fileName)) statusOK = false;
             return statusOK;
         }
 

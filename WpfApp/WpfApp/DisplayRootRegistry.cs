@@ -70,7 +70,8 @@ namespace WpfApp
         {
             Window window;
             if (!openWindows.TryGetValue(vm, out window))
-                throw new InvalidOperationException("UI for this VM is not displayed");
+                return;
+                //throw new InvalidOperationException("UI for this VM is not displayed");
             window.Close();
             openWindows.Remove(vm);
         }

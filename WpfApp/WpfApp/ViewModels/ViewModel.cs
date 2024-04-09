@@ -89,7 +89,7 @@ namespace WpfApp.ViewModels
         private void addItem() 
         {
             Supply supply = new Supply();
-            supply.PropertyChanged += RecalculateTotalSum;
+            supply.PropertyChanged += recalculateTotalSum;
             _Items.Add(supply);
         }
 
@@ -97,7 +97,7 @@ namespace WpfApp.ViewModels
         {
             Supply.peekId(_selectedSupply.Id);
             _Items.Remove(_selectedSupply);
-            RecalculateTotalSum(null, null);
+            recalculateTotalSum(null, null);
         }
 
         private async void showNewWindow()
@@ -108,12 +108,12 @@ namespace WpfApp.ViewModels
             updateOrderId();
         }
 
-        void updateOrderId() 
+        private void updateOrderId() 
         {
             OrderId = Convert.ToInt32(Settings.Default.Id);
         }
 
-        private void RecalculateTotalSum(object sender, PropertyChangedEventArgs e)
+        private void recalculateTotalSum(object sender, PropertyChangedEventArgs e)
         {
             decimal total = 0;
             foreach (Supply item in _Items)
